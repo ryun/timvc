@@ -1,3 +1,11 @@
+/**
+* Create a new model instance.
+*
+* @classDescription	This class is used as the base model class.
+* @return	{Object}	Returns a new Model object.
+* @constructor  
+*/
+
 t$.baseModel = function(opts) {
 	opts = opts || {};
 	this.table = opts.table || 'myadb';
@@ -9,9 +17,20 @@ t$.baseModel = function(opts) {
 };
 
 t$.baseModel.prototype = {
+	/*
+	 * @alias	t$.app.dbcon
+	 * returns	t$.app.dbcon
+	 */
 	db: function() {
 		return t$.app.dbcon;
 	},
+	
+	/**
+	* Creates "if not exists" the database table for this model
+	*
+	* @return	{Void}
+	* @type		{function}
+	*/
 	create_table: function() {
 		var str = 'CREATE TABLE IF NOT EXISTS ' + this.table;
 		var flds = [];
@@ -21,10 +40,27 @@ t$.baseModel.prototype = {
 		str += ' (' + flds.join(',') + ');';
 		this.query(str);
 	},
+	
+	/**
+	* Query a database
+	*
+	* @type		{function}
+	* @param	{String} query A valid SQL statement
+	* @param	{String, Array}	[params]
+	* @return	{Void}
+	*/
 	query: function(query, params) {
 		params = params || [];
 		return this.toArray(this.db().execute(query, params));
 	},
+	
+	/**
+	 * Find a record with a specified primarykey
+	 * 
+	 * @type	{function}
+	 * @param	{INT}	id	The primary id of the record (usualy the ID)
+	 * @return	{Object}	Dictionary object of rows and records.
+	 */
 	find: function(id){
 	    Ti.API.debug('#################### TRYING TO FIND SOMETHING...');
 	    try {
@@ -46,6 +82,7 @@ t$.baseModel.prototype = {
 	    }
 	    return rows;
 	},
+	
 	toArray: function(rows) {
 		var result = [], rowData;
 		// Loop through each row
