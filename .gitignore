@@ -5,3 +5,6 @@ tmp
 build.log
 
 /build
+/.settings
+/build
+/Resources/lib/BaseApp.js
