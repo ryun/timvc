@@ -8,8 +8,32 @@ exports.home = new t$.BaseView({
 		
 		// create base UI tab and root window
 		//
-		var win1 = Titanium.UI.createWindow({ title:'Tab 1', backgroundColor:'#fff' });
+		var win1 = Titanium.UI.createWindow({ title:'Tab 1', backgroundColor:'#fff',layout:'vertical' });
 		var tab1 = Titanium.UI.createTab({ icon:'KS_nav_views.png', title:'Tab 1', window:win1 });
+
+		var tblView = new t$.ui.tableScrollableView();
+		
+		// Table objects ()
+		var tbl = new t$.ui.tableScrollable();
+		var tbl2 = new t$.ui.tableScrollable();
+		
+		for (var i=0; i<5; i++){
+			tbl.addRow({id : i,cat : 'News' + i,title : 'Test Title 0' + i,cost : 3 * i});
+		}
+		for (var i=0; i<5; i++){
+			tbl2.addRow({id : i,cat : 'News' + i,title : 'Test Title 0' + i,cost : 2 * i});
+		}
+		tbl2.addRow({
+			id : 11,
+			cat : 'Test Cat',
+			title : 'Title Stuff',
+			cost : 21
+		});
+		
+		//tbl.tr({id:5, cat: 'News', title: 'Test Title 01', cost: 50 });
+		tbl.addTo(tblView);
+		tbl2.addTo(tblView);
+		win1.add(tblView.build());
 		
 		var label1 = Titanium.UI.createLabel({
 			color:'#999',text:'I am Window 1',
@@ -40,6 +64,9 @@ exports.home = new t$.BaseView({
 				win2.add(label2);
 			}
 		}
+
+
+
 		tabGroup.addTab(tab1);  
 		tabGroup.addTab(tab2);
 		tabGroup.open();

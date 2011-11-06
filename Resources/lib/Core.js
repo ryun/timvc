@@ -1,6 +1,14 @@
 /*
  * Core Framework Namespace
  */
+
+
+//(function(sel, context){}) ();
+
+/**
+ * @namespace Holds Core functionality related to running the framework.
+ */
+
 var t$ = {
 	app: {
 		loaded:[],
@@ -9,12 +17,14 @@ var t$ = {
 	m: {},
 	v: {},
 	c: {},
+	ui: {},
 };
+
 
 /**
  * Runs thru a list of specified methods at statup
  *
- * @type	{function}
+ * @function
  * @return	{Void}
  */
 t$.bootstrap = function() {
@@ -23,8 +33,40 @@ t$.bootstrap = function() {
 		t$.app.dbcon = t$.db.open();
 	}
 };
-// Return the results of applying the iterator to each element.
-// Delegates to **ECMAScript 5**'s native `map` if available.
+
+/*
+ * Bind Events Listener to a Object
+ * 
+ * @function
+ * @param	Object		obj			The object we are listening to
+ * @param	String		event		The event to listen for
+ * @param	Function	callback	Function to call when the event is trigered
+ * @returns	Void
+ */
+t$.bind = function(obj, event, callback) {
+	obj.addEventListener(event, callback);
+};
+
+/*
+ * Trigger Event Listener
+ * 
+ * @function
+ * @param	String	event	The event to listen for
+ * @param	Object	data	Event object or Optional data payload for the event
+ * @returns	Void
+ */
+t$.trigger = function(event, data) {
+	return obj.fireEvent(event, data);
+};
+
+/*
+ * Maps a function to each element
+ * @function
+ * @param	Object		obj		Object to iterate
+ * @param	Function	funk	Function to use with the map
+ * @param	Object		context	Context to call from
+ * @returns	Object
+ */
 t$.map = function(obj, iterator, context) {
 	var results = [];
 	if(obj == null)
@@ -33,11 +75,19 @@ t$.map = function(obj, iterator, context) {
 		results[results.length] = iterator.call(context, value, index, list);
 	});
 	return results;
-}, t$.toString = function() {
+};
+
+t$.toString = function() {
 	return Object.prototype.toString();
 };
-// Is a given array, string, or object empty?
-// An "empty" object has no enumerable own-properties.
+
+/*
+ * Check if the variable is empty
+ * @function
+ * @param	Object, Array, String	The variable to check
+ * @returns	Bool
+ */
+
 t$.isEmpty = function(obj) {
 	if(this.isArray(obj) || this.isString(obj))
 		return obj.length === 0;
@@ -46,64 +96,112 @@ t$.isEmpty = function(obj) {
 		return false;
 	return true;
 };
-// Is a given value an array?
-// Delegates to ECMA5's native Array.isArray
+
+/*
+ * Is value an array?
+ * @function
+ */
 t$.isArray = function(obj) {
 	return this.toString.call(obj) == '[object Array]';
 };
-// Is a given variable an object?
+/*
+ * Is variable an object?
+ * @function
+ */
 t$.isObject = function(obj) {
 	return obj === Object(obj);
 };
-// Is a given variable an arguments object?
+/*
+ * Is variable an arguments object?
+ * @function
+ */
 t$.isArguments = function(obj) {
 	return this.toString.call(obj) == '[object Arguments]';
 };
-// Is a given value a function?
+/*
+ * Is value a function?
+ * @function
+ */
 t$.isFunction = function(obj) {
 	return this.toString.call(obj) == '[object Function]';
 };
-// Is a given value a string?
+/*
+ * Is value a string?
+ * @function
+ */
 t$.isString = function(obj) {
 	return this.toString.call(obj) == '[object String]';
 };
-// Is a given value a number?
+/*
+ * Is value a number?
+ * @function
+ */
 t$.isNumber = function(obj) {
 	return this.toString.call(obj) == '[object Number]';
 };
-// Is the given value `NaN`?
+/*
+ * Is the given value `NaN`?
+ * @function
+ */
 t$.isNaN = function(obj) {
-	// `NaN` is the only value for which `===` is not reflexive.
 	return obj !== obj;
 };
-// Is a given value a boolean?
+/*
+ * Is value a boolean?
+ * @function
+ */
 t$.isBool = function(obj) {
 	return obj === true || obj === false || this.toString.call(obj) == '[object Boolean]';
 };
-// Is a given value a date?
+/*
+ * Is value a date?
+ * @function
+ */
 t$.isDate = function(obj) {
 	return this.toString.call(obj) == '[object Date]';
 };
-// Is the given value a regular expression?
+/*
+ * Is the given value a regular expression?
+ * @function
+ */
 t$.isRegExp = function(obj) {
 	return this.toString.call(obj) == '[object RegExp]';
 };
-// Is a given value equal to null?
+/**
+ * Is value equal to null?
+ * @function
+ */
 t$.isNull = function(obj) {
 	return obj === null;
 };
-// Is a given variable undefined?
+
+/*
+ * Is variable undefined?
+ * @function
+ */
 t$.isUndefined = function(obj) {
 	return obj ===
 	void 0;
 };
+
+/*
+ * Check if object has a key
+ *
+ * @function
+ * @params	Object	obj	Object to check
+ * @param	String	key	Property to check for
+ * @returns	Bool 
+ */
 t$.contains = function(obj, key) {
 	return Object.prototype.hasOwnProperty.call(obj, key) && Object.prototype.propertyIsEnumerable.call(obj, key);
 };
 
+/*
+ * Iterate through object
+ * @function
+ */
 t$.forEach = function(obj, funk, context) {
-	if(obj == null)
-		return;
+	if(obj == null) return;
 	if(Array.prototype.forEach && obj.forEach === Array.prototype.forEach) {
 		obj.forEach(iterator, context);
 	} else if(obj.length === +obj.length) {
@@ -120,10 +218,12 @@ t$.forEach = function(obj, funk, context) {
 		}
 	}
 };
+
 /*
  * Trim spaces from a string on the left and right.
+ * @function
+ * @param	String	str	String to trim
  */
-
 t$.trim = function(str) {
 	var n = str.length, s, i;
 	if(!n)
@@ -178,6 +278,7 @@ t$.trim = function(str) {
 t$.jsonParse = function(json) {
 	return JSON.parse(json);
 };
+
 // Fill in a given object with default properties.
 t$.defaults = function(obj) {
 	this.forEach(slice.call(arguments, 1), function(source) {
@@ -221,9 +322,8 @@ t$.toQueryStr = function(obj) {
 };
 
 
-/*
- * Name space for library loader
- * 
+/**
+ * @namespace Holds space for the library loader methods
  */
 t$.load = {};
 

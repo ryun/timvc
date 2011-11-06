@@ -5,10 +5,9 @@ exports.category_m = new t$.baseModel({
 		id: 'INTEGER PRIMARY KEY AUTOINCREMENT',
 		name:'TEXT',
 	},
-	methods:{
+	methods: {
 		getOne: function(id) {
-
-			return this.find(id);
+			return this.find(id).toArray();
 		}
 	},
 });

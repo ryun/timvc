@@ -41,21 +41,18 @@ t$.DB.prototype = {
 		t$.app.dbcon = false;
 		Ti.API.debug('#################### CLOSED DATABASE !!! ALL DONE!!');
 	},
-
 };
-/*
-var DBResultSet = makeClass({
 
-	init: function(result) {
-		if (result === null || rowCount === 0) {
-			return 0;
-		}
-		this.result = result;
-		this.rowcount = result.rowCount;
-		this.validrow = result.validRow;
-		//result.close();	
-	},
-	
+t$.DbResults = function(result) {
+	if (result === null || results.rowCount === 0) {
+		return 0;
+	}
+	this.result = result;
+	this.rowcount = result.rowCount;
+	this.validrow = result.validRow;	
+};
+
+t$.DbResults.prototype = {
 	fieldCount: function(){
 		return this.result.fieldCount();
 	},
@@ -98,4 +95,22 @@ var DBResultSet = makeClass({
 	next: function(){
 		this.result.next();
 	},
-});*/
+	toArray: function(){
+		var result = [], rowData;
+		// Loop through each row
+		if (t$.isObject(rows))
+		{
+			while (rows.isValidRow()) {
+				rowData = {};
+	
+				for (var i=0; i<rows.fieldCount(); i += 1) {
+					rowData[rows.fieldName(i)] = rows.field(i);
+				}
+				result.push(rowData);
+				rows.next();
+			}
+    		rows.close();
+    	}
+    	return result;
+	}
+};

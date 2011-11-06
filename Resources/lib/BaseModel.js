@@ -1,9 +1,6 @@
 /**
-* Create a new model instance.
-*
-* @classDescription	This class is used as the base model class.
-* @return	{Object}	Returns a new Model object.
-* @constructor  
+* Create a new model.
+* @class	This class is used as the base model class.
 */
 
 t$.baseModel = function(opts) {
@@ -51,7 +48,7 @@ t$.baseModel.prototype = {
 	*/
 	query: function(query, params) {
 		params = params || [];
-		return this.toArray(this.db().execute(query, params));
+		return new t$.DbResults(this.db().execute(query, params));
 	},
 	
 	/**

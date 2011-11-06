@@ -3,6 +3,11 @@
 
 As of right now TiMVC Framework is a proof-of-concept code-base, constantly evolving and expanding towards a full-blown MVC framework.
 
+#### FEATURES
+* Model, View, Controller
+* DB Abstract Layer
+* Helpers
+* UI Components
 
 ----------------------------------
 Stuff our legal folk make us say:

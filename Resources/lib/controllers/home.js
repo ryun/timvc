@@ -3,10 +3,10 @@ exports.home = {
 
 	},
 	index : function(id) {
-		//t$.load.lib('category_m');
-		t$.load.model('category_m');
+		t$.load.require('tableScrollableView', 'lib/helpers/', t$.ui);
+		t$.load.require('tableScrollable', 'lib/helpers/', t$.ui);
 		var data = [{id:1,name:'cat1'}];
-		t$.db.close();
+		
 		t$.load.view('home');
 		t$.v.home.render(data);
 	}
