@@ -3,14 +3,21 @@
 * @class	This class is used as the base model class.
 */
 
-t$.baseModel = function(opts) {
+t$.baseModel = function(opts, args) {
 	opts = opts || {};
+	this.args = args || null;
 	this.table = opts.table || 'myadb';
 	this.prikey = opts.prikey || 'id';
 	this.columns = opts.columns || {};
 	this.objMethods = opts.methods || {};
-  
+	
+	// Add Custom model Methods
 	t$.forEach(this.objMethods, function(method, name) {this[name] = method;}, this);
+	
+	if ( typeof this.init == "function" ) {
+		this.init();
+	}
+
 };
 
 t$.baseModel.prototype = {
@@ -48,6 +55,12 @@ t$.baseModel.prototype = {
 	*/
 	query: function(query, params) {
 		params = params || [];
+		Ti.API.debug('#################### TRYING QUERY: ' + query);
+		return this.db().execute(query, params);
+	},
+	query_result: function(query, params) {
+		params = params || [];
+		Ti.API.debug('#################### TRYING QUERY: ' + query);
 		return new t$.DbResults(this.db().execute(query, params));
 	},
 	
@@ -61,7 +74,8 @@ t$.baseModel.prototype = {
 	find: function(id){
 	    Ti.API.debug('#################### TRYING TO FIND SOMETHING...');
 	    try {
-	    	var rows = this.query('SELECT * from ' + this.table + ' WHERE ' + this.prikey + ' = ?;', id);
+	    	v = (t$.isString(id)) ? "\'?\'" : "?";
+	    	var rows = this.query_result('SELECT * from ' + this.table + ' WHERE ' + this.prikey + ' = ' + v + ';', id);
 	    }
 	    catch(exception) {
 			Ti.API.error(exception);
@@ -71,7 +85,8 @@ t$.baseModel.prototype = {
 	},
 	findAll: function(){
 	    try {
-	    	var rows = this.query('SELECT * from ' + this.table);
+	    	Ti.API.debug('#################### TRYING TO FIND SOMETHING...');
+	    	var rows = this.query_result('SELECT * FROM ' + this.table);
 	    }
 	    catch(exception) {
 			Ti.API.error(exception);
@@ -80,24 +95,6 @@ t$.baseModel.prototype = {
 	    return rows;
 	},
 	
-	toArray: function(rows) {
-		var result = [], rowData;
-		// Loop through each row
-		if (t$.isObject(rows))
-		{
-			while (rows.isValidRow()) {
-				rowData = {};
-	
-				for (var i=0; i<rows.fieldCount(); i += 1) {
-					rowData[rows.fieldName(i)] = rows.field(i);
-				}
-				result.push(rowData);
-				rows.next();
-			}
-    		rows.close();
-    	}
-    	return result;
-	},
 	/*** Query Helpers ***/
 	countAll: function() {
 		var result = this.query("SELECT COUNT(*) FROM " + this.table);

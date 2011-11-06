@@ -10,6 +10,15 @@
  */
 
 var t$ = {
+	dpi: Ti.Platform.displayCaps.dpi,
+	density: Ti.Platform.displayCaps.density,
+	locale: Ti.Platform.locale,
+	osname: Ti.Platform.osname,
+	isAndroid: (Ti.Platform.osname == 'android') ? true : false,
+	isIphone: (Ti.Platform.osname == 'iphone') ? true : false,
+	dp: function (densityPixels) {
+		return (densityPixels * Ti.Platform.displayCaps.dpi) / 160;
+	},
 	app: {
 		loaded:[],
 		dbcon:false
@@ -30,7 +39,11 @@ var t$ = {
 t$.bootstrap = function() {
 	if(t$.app.dbcon === false) {
 		t$.db = new t$.DB();
-		t$.app.dbcon = t$.db.open();
+		t$.app.dbcon = t$.db.install();
+		//t$.app.dbcon = t$.db.open();
+		t$.app.dbcon.execute('PRAGMA read_uncommitted=true');
+		
+		
 	}
 };
 
@@ -97,6 +110,10 @@ t$.isEmpty = function(obj) {
 	return true;
 };
 
+t$.hasData = function(o) {
+	if (o == false || typeof o === "undefined" || o.length < 1) return false;
+	return true;
+};
 /*
  * Is value an array?
  * @function
@@ -136,8 +153,9 @@ t$.isString = function(obj) {
  * Is value a number?
  * @function
  */
-t$.isNumber = function(obj) {
-	return this.toString.call(obj) == '[object Number]';
+t$.isNumber = function(n) {
+	return !isNaN(parseFloat(n)) && isFinite(n);
+	//return this.toString.call(obj) == '[object Number]';
 };
 /*
  * Is the given value `NaN`?

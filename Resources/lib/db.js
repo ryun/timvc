@@ -1,6 +1,6 @@
 t$.DB = function(opts) {
 	opts = opts || {};
-	this.dbname = opts.dbname || 'myadb';
+	this.dbname = opts.dbname || 'db';
 	this.table = opts.table || '';
 	this.pk = opts.pk || 'id';
 	this.cols = opts.cols || {};
@@ -12,7 +12,7 @@ t$.DB = function(opts) {
 t$.DB.prototype = {
 	install: function(name, path) {
 		this.dbname = name || this.dbname;
-		this.dbpath = path || this.dbname + '.db';
+		this.dbpath = path || this.dbname + '.sqlite';
 		Ti.API.debug('#################### INSTALLING DATABASE');
 		return Titanium.Database.install(this.dbpath, this.dbname);
 	},
@@ -29,6 +29,7 @@ t$.DB.prototype = {
 			this.dbname = name || this.dbname;
 			this.dbpath = path || this.dbname + '.db';
 			//Titanium.Database.install(this.dbpath, this.dbname);
+			
 			return Titanium.Database.open(this.dbname);
 			
 			//t$.app.dbcon.execute('PRAGMA read_uncommitted=true');
@@ -44,12 +45,12 @@ t$.DB.prototype = {
 };
 
 t$.DbResults = function(result) {
-	if (result === null || results.rowCount === 0) {
+	if (result === null || result.rowCount === 0) {
 		return 0;
 	}
 	this.result = result;
 	this.rowcount = result.rowCount;
-	this.validrow = result.validRow;	
+	this.validrow = result.validRow;
 };
 
 t$.DbResults.prototype = {
@@ -60,7 +61,7 @@ t$.DbResults.prototype = {
 		return this.result.isValidRow();
 	},
 	rowCount: function(){
-		return this.result.rowCount;
+		return this.rowcount;
 	},
 
 	// needs forEach Loop/Iterator function for results
@@ -68,12 +69,12 @@ t$.DbResults.prototype = {
 	// close the result set and release resources. once closed, this result set must no longer be used
 	close: function(){
 		this.result.close();
-		return this;
 	},
 
 	// retrieve a row value by field index
 	field: function(i) {
-		return (typeof i === "number" && isNaN(i)) ? this.result.field(i) : this.result.fieldByName(i);
+		Ti.API.debug('#### GET FIELD: ' + i);
+		return (t$.isNumber(i)) ? this.result.field(i) : this.result.fieldByName(i);
 	},
 
 	// retrieve a row value by field name
@@ -83,7 +84,7 @@ t$.DbResults.prototype = {
 
 	// return the number of columns in the result set
 	fieldCount: function(){
-		return this.result.fieldCount();
+		return this.result.fieldCount;
 	},
 
 	// return the field name for field index
@@ -98,18 +99,18 @@ t$.DbResults.prototype = {
 	toArray: function(){
 		var result = [], rowData;
 		// Loop through each row
-		if (t$.isObject(rows))
+		if (t$.isObject(this.result))
 		{
-			while (rows.isValidRow()) {
+			while (this.isRow()) {
 				rowData = {};
 	
-				for (var i=0; i<rows.fieldCount(); i += 1) {
-					rowData[rows.fieldName(i)] = rows.field(i);
+				for (var i=0; i<this.fieldCount(); i++) {
+					rowData[this.fieldName(i)] = this.field(i);
 				}
 				result.push(rowData);
-				rows.next();
+				this.next();
 			}
-    		rows.close();
+    		this.close();
     	}
     	return result;
 	}

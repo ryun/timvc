@@ -9,8 +9,8 @@ exports.tableScrollable = function(cfg) {
 	cfg.bgColor = cfg.bgColor || '#000';
 
 	// TABLE CELLS (TD)
-	cfg.C_width = cfg.C_width || _p(95);
-	cfg.C_height = cfg.C_height || _p(50);
+	cfg.C_width = cfg.C_width || t$.dp(95);
+	cfg.C_height = cfg.C_height || t$.dp(50);
 	cfg.C_color = cfg.C_color || '#000';
 	cfg.C_font = cfg.C_font || {};
 
@@ -21,15 +21,15 @@ exports.tableScrollable = function(cfg) {
 	cfg.R_bgColor = '#fff';
 
 	// PADDING LEFT/RIGHT
-	cfg.xPad = cfg.xPad || _p(0);
+	cfg.xPad = cfg.xPad || t$.dp(0);
 	// PADDING TOP/BOTTOM
-	cfg.yPad = cfg.yPad || _p(0);
+	cfg.yPad = cfg.yPad || t$.dp(0);
 
 	cfg.H_bgColor = cfg.H_bgColor || '#fff';
 
 	// TABLE HEADER CELLS (TH)
-	cfg.HC_height = cfg.HC_height || _p(65);
-	cfg.HC_width = cfg.HC_width || _p(95);
+	cfg.HC_height = cfg.HC_height || t$.dp(65);
+	cfg.HC_width = cfg.HC_width || t$.dp(95);
 	cfg.HC_bgColor = cfg.HC_bgColor || '#000';
 	cfg.HC_color = cfg.HC_color || '#fff';
 	cfg.HC_font = cfg.HC_font || {
@@ -41,10 +41,6 @@ exports.tableScrollable = function(cfg) {
 	this.table.header = this.table.header || [];
 	this.table.rows = this.table.rows || [];
 	this.table.fields = this.table.fields || [];
-
-	function _p(densityPixels) {
-		return densityPixels * Ti.Platform.displayCaps.dpi / 160;
-	}
 
 	function _header(data) {
 		var v = Ti.UI.createView({

@@ -8,3 +8,4 @@ build.log
 /.settings
 /build
 /Resources/lib/BaseApp.js
+*.bat

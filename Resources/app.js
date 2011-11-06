@@ -7,7 +7,7 @@ Ti.include('lib/db.js');
 Ti.include('lib/BaseModel.js');
 Ti.include('lib/BaseView.js');
 
-//t$.bootstrap();
+t$.bootstrap();
 
 // Manualy load controller (for example)
 t$.load.controller('home');

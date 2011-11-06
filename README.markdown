@@ -6,9 +6,13 @@ As of right now TiMVC Framework is a proof-of-concept code-base, constantly evol
 #### FEATURES
 * Model, View, Controller
 * DB Abstract Layer
+* Cache Library
+* Simple App.Properties Abstract
 * Helpers
 * UI Components
-
+** Stock UI Abstraction
+** Busy Indicator 
+* ...Plus a bunch of other small aliases
 ----------------------------------
 Stuff our legal folk make us say:
 
