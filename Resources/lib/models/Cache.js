@@ -2,36 +2,47 @@ exports.Cache = new t$.baseModel({
 	table: 'tbl_app_cache',
 	prikey: 'key',
 	columns: {
-		key: 'TEXT UNIQUE',
+		key: 'TEXT PRIMARY KEY',
 		val: 'TEXT',
 		expiration: 'INTEGER'
 	},
 	methods:{
 		init: function() {	
-			this.expire_interval = this.expire_interval || 60;
+			this.expire_interval = this.expire_interval || 10;
 			this.expire_default = this.expire_default || 300;
-			
-			// or get
+
+			// Expire Option [ intervals | get ]
 			this.expire_on = this.expire_on || 'intervals';
 			this.init_cache();
 		},
 		
 		// Cache initialization
 		init_cache: function() {
-			this.query('CREATE TABLE IF NOT EXISTS ' + this.table + ' (key TEXT UNIQUE, val TEXT, expiration INTEGER)');
+			this.query('CREATE TABLE IF NOT EXISTS ' + this.table + ' (key TEXT PRIMARY KEY, val TEXT, expiration INTEGER);');
 			Ti.API.info('[CACHE] INITIALIZED');
 			
 			if (this.expire_on == 'intervals') {
-				var self = this; 
-				setInterval(self.expire_cache, self.expire_interval * 1000);
+				var self = this;
+				function expire_cache() {
+
+					self.query('DELETE FROM ' + self.table + ' WHERE expiration <= ?', self.timestamp());
+				}
+				
+				setInterval(expire_cache, self.expire_interval * 1000);
 			}
 		},
 	
 		expire_cache: function() {
 			// deletes everything older than timestamp
+			// @todo Message: TypeError: Cannot find function query in object [Ti.Titanium]
 			this.query('DELETE FROM ' + this.table + ' WHERE expiration <= ?', this.timestamp());
 	
 		},
+		clear_cache: function() {
+			// deletes everything
+			this.query('DELETE FROM ' + this.table);
+		},
+	
 	
 		timestamp: function() {
 			var value = Math.floor(new Date().getTime() / 1000);
@@ -43,12 +54,11 @@ exports.Cache = new t$.baseModel({
 			if (this.expire_on == 'get') {
 				this.query('DELETE FROM ' + this.table + ' WHERE expiration <= ?', this.timestamp());
 			}
-	
-			var rs = this.query_result('SELECT val FROM ' + this.table + ' WHERE key = ?', key);
+			var rs = this.query('SELECT val FROM ' + this.table + ' WHERE key = ?', key);
 			var result = null;
-			if (rs.isRow()) {
-				Ti.API.info('[CACHE] YEP, key[' + key + ']');
-				result = JSON.parse(rs.field('val'));
+			if (rs.isValidRow()) {
+				Ti.API.info('[CACHE] YEP, key[' + key + ']' + rs.field(0));
+				result = JSON.parse(rs.field(0));
 			} else {
 				Ti.API.info('[CACHE] NOPE, key[' + key + ']');
 			}
@@ -62,10 +72,10 @@ exports.Cache = new t$.baseModel({
 			expiration_seconds = expiration_seconds || this.expire_default;
 			
 			var expires_in = this.timestamp() + expiration_seconds;
-			//if (!t$.isString(val)) val = JSON.stringify(val);
-			val = JSON.stringify(val);
-			var qstr = 'INSERT OR REPLACE INTO ' + this.table + ' (key, val, expiration) VALUES (?, ?, ?);';
-			this.query(qstr, key, val, expires_in);
+
+			var qstr = 'REPLACE INTO ' + this.table + ' (key, val, expiration) VALUES (?, ?, ?);';
+			this.query(qstr, [key, JSON.stringify(val), expires_in]);
+			return t$.db.rowsAffected();
 		},
 	
 		del: function(key) {

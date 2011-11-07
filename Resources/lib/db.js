@@ -18,7 +18,6 @@ t$.DB.prototype = {
 	},
 	open: function(name, path) {
 		if (t$.app.dbcon === false) {
-			//this.dbname = database;
 			var self=this;
 			Ti.App.addEventListener('close',function(e){
 				if ( t$.app.dbcon ) {
@@ -31,11 +30,14 @@ t$.DB.prototype = {
 			//Titanium.Database.install(this.dbpath, this.dbname);
 			
 			return Titanium.Database.open(this.dbname);
-			
 			//t$.app.dbcon.execute('PRAGMA read_uncommitted=true');
 			
 		}
 		return t$.app.dbcon;
+	},
+	rowsAffected: function(){
+		var n = t$.app.dbcon.rowsAffected;
+		return n || 0;
 	},
 	close: function(){
 		t$.app.dbcon.close();
@@ -45,7 +47,8 @@ t$.DB.prototype = {
 };
 
 t$.DbResults = function(result) {
-	if (result === null || result.rowCount === 0) {
+	//if (result === null || result.rowCount === 0) {
+	if (!result) {
 		return 0;
 	}
 	this.result = result;
@@ -63,8 +66,6 @@ t$.DbResults.prototype = {
 	rowCount: function(){
 		return this.rowcount;
 	},
-
-	// needs forEach Loop/Iterator function for results
 	
 	// close the result set and release resources. once closed, this result set must no longer be used
 	close: function(){

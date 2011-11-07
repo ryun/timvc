@@ -39,6 +39,8 @@ var t$ = {
 t$.bootstrap = function() {
 	if(t$.app.dbcon === false) {
 		t$.db = new t$.DB();
+		t$.app.dbcon = t$.db.open();
+		t$.app.dbcon.remove();
 		t$.app.dbcon = t$.db.install();
 		//t$.app.dbcon = t$.db.open();
 		t$.app.dbcon.execute('PRAGMA read_uncommitted=true');

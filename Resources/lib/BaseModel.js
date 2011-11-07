@@ -3,7 +3,7 @@
 * @class	This class is used as the base model class.
 */
 
-t$.baseModel = function(opts, args) {
+exports.baseModel = function(opts, args) {
 	opts = opts || {};
 	this.args = args || null;
 	this.table = opts.table || 'myadb';
@@ -13,6 +13,7 @@ t$.baseModel = function(opts, args) {
 	
 	// Add Custom model Methods
 	t$.forEach(this.objMethods, function(method, name) {this[name] = method;}, this);
+
 	
 	if ( typeof this.init == "function" ) {
 		this.init();
@@ -20,7 +21,7 @@ t$.baseModel = function(opts, args) {
 
 };
 
-t$.baseModel.prototype = {
+exports.baseModel.prototype = {
 	/*
 	 * @alias	t$.app.dbcon
 	 * returns	t$.app.dbcon
@@ -111,7 +112,7 @@ t$.baseModel.prototype = {
 	}
 };
 
-
+/*
 Bookmarks_Model = new t$.baseModel({
 	table: 'bookmarks',
 	prikey: 'id',
@@ -125,7 +126,7 @@ Bookmarks_Model = new t$.baseModel({
 	},
 });
 
-/*
+
 t$.query = function(){
 	this._operation = '';
 	this._fields = [];
