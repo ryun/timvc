@@ -10,8 +10,8 @@ As of right now TiMVC Framework is a proof-of-concept code-base, constantly evol
 * Simple App.Properties Abstract
 * Helpers
 * UI Components
-** Stock UI Abstraction
-** Busy Indicator 
+* Stock UI Abstraction
+* Busy Indicator 
 * ...Plus a bunch of other small aliases
 ----------------------------------
 Stuff our legal folk make us say:
