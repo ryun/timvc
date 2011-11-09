@@ -1,19 +1,31 @@
 ### Welcome to the **TiMVC Framework**
 (alpha/experimental/proof-of-concept)
 
-As of right now TiMVC Framework is a proof-of-concept code-base, constantly evolving and expanding towards a full-blown MVC framework.
+As of right now TiMVC Framework is a proof-of-concept codebase, constantly evolving and expanding towards a full-blown MVC framework.
 
 #### FEATURES
 * Model, View, Controller
+* Module Library Loader, into a specific namepsace or GLOBAL (CommonJS)
 * DB Abstract Layer
-* Cache Library
-* Simple App.Properties Abstract
-* Helpers
+* Cache Library (SQLite, adapters coming soon: App.Props)
+* HTTP/AJAX Helper
+* GEO Components
+* - Map Bounds
+* - Map Class (soon)
+* - Location
+* - Geocoder
+* - Tracking (soon)
+* App.Properties Abstract
 * UI Components
-* Stock UI Abstraction
-* Busy Indicator 
-* ...Plus a bunch of other small aliases
+* - UI Helpers/Abstraction
+* - Scrolling Tables with columns and headers!
+* - SlideView (toggle View (animated))
+* - Busy Indicator 
+* - Alert Dialog
+* ...Plus a bunch of other small Helpers and Aliases
+
 ----------------------------------
+
 Stuff our legal folk make us say:
 
 Appcelerator, Appcelerator Titanium and associated marks and logos are 
