@@ -1,6 +1,8 @@
 exports.home = new t$.BaseView({
 	
 	view: function(data) {
+		t$.load.helpers('http', t$);
+		
 		Titanium.UI.setBackgroundColor('#000');
 		
 		var tabGroup = Titanium.UI.createTabGroup();
@@ -65,7 +67,33 @@ exports.home = new t$.BaseView({
 			}
 		}
 
-
+		
+		t$.http({
+			url:'http://google.com',
+			method: 'GET',
+			type: 'html',
+			callback: function(data){
+				win1.add(Titanium.UI.createWebView({html:data}));
+			}
+		});
+	
+		t$.http({
+			url:'http://yahoo.com',
+			method: 'GET',
+			type: 'html',
+			callback: function(data){
+				win2.add(Titanium.UI.createWebView({html:data}));
+			}
+		});
+		
+		t$.http({
+			url:'http://google.com',
+			method: 'GET',
+			type: 'html',
+			callback: function(data){
+				win2.add(Titanium.UI.createWebView({html:data}));
+			}
+		});
 
 		tabGroup.addTab(tab1);  
 		tabGroup.addTab(tab2);

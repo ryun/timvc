@@ -8,7 +8,7 @@ exports.Cache = new t$.baseModel({
 	},
 	methods:{
 		init: function() {	
-			this.expire_interval = this.expire_interval || 10;
+			this.expire_interval = this.expire_interval || 60;
 			this.expire_default = this.expire_default || 300;
 
 			// Expire Option [ intervals | get ]
@@ -23,21 +23,14 @@ exports.Cache = new t$.baseModel({
 			
 			if (this.expire_on == 'intervals') {
 				var self = this;
-				function expire_cache() {
-
+				var expire_cache = function() {
 					self.query('DELETE FROM ' + self.table + ' WHERE expiration <= ?', self.timestamp());
 				}
 				
 				setInterval(expire_cache, self.expire_interval * 1000);
 			}
 		},
-	
-		expire_cache: function() {
-			// deletes everything older than timestamp
-			// @todo Message: TypeError: Cannot find function query in object [Ti.Titanium]
-			this.query('DELETE FROM ' + this.table + ' WHERE expiration <= ?', this.timestamp());
-	
-		},
+
 		clear_cache: function() {
 			// deletes everything
 			this.query('DELETE FROM ' + this.table);
@@ -58,7 +51,8 @@ exports.Cache = new t$.baseModel({
 			var result = null;
 			if (rs.isValidRow()) {
 				Ti.API.info('[CACHE] YEP, key[' + key + ']' + rs.field(0));
-				result = JSON.parse(rs.field(0));
+				//result = JSON.parse(rs.field(0));
+				result = rs.field(0);
 			} else {
 				Ti.API.info('[CACHE] NOPE, key[' + key + ']');
 			}

@@ -39,8 +39,8 @@ var t$ = {
 t$.bootstrap = function() {
 	if(t$.app.dbcon === false) {
 		t$.db = new t$.DB();
-		t$.app.dbcon = t$.db.open();
-		t$.app.dbcon.remove();
+		//t$.app.dbcon = t$.db.open();
+		//t$.app.dbcon.remove();
 		t$.app.dbcon = t$.db.install();
 		//t$.app.dbcon = t$.db.open();
 		t$.app.dbcon.execute('PRAGMA read_uncommitted=true');
@@ -223,7 +223,7 @@ t$.contains = function(obj, key) {
 t$.forEach = function(obj, funk, context) {
 	if(obj == null) return;
 	if(Array.prototype.forEach && obj.forEach === Array.prototype.forEach) {
-		obj.forEach(iterator, context);
+		obj.forEach(funk, context);
 	} else if(obj.length === +obj.length) {
 		for(var i = 0, l = obj.length; i < l; i++) {
 			if( i in obj && funk.call(context, obj[i], i, obj) === {})
@@ -301,7 +301,7 @@ t$.jsonParse = function(json) {
 
 // Fill in a given object with default properties.
 t$.defaults = function(obj) {
-	this.forEach(slice.call(arguments, 1), function(source) {
+	this.forEach(Array.prototype.slice.call(arguments, 1), function(source) {
 		for(var prop in source) {
 			if(obj[prop] == null)
 				obj[prop] = source[prop];
@@ -423,7 +423,20 @@ t$.load.controller = function(f, n) {
 	n = n || t$.c;
 	this.require(f, 'lib/controllers/', n);
 };
+t$.load.Dispatch = function(controller, action, params) {
 
+	t$.load.controller(controller);
+	// Get Possible Controller
+	var _c = t$.c[controller];
+	if (_c.hasAction(action)) {
+		t$.c[controller][action](params);
+	} else {
+		var alrt = t$.alertDialog({
+			title:'Action Not Found',
+			message:'Action "' + action + '" not found in [' + controller + ']',
+		});
+	}
+};
 /*
  * Load Helpers
  * 

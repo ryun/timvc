@@ -86,6 +86,30 @@ t$.ui.picker = function(opts, items) {
 	return false;
 };
 
+t$.alertDialog = function(opts) {
+	opts = opts || {};
+	
+	this.title = opts.title || 'Alert';
+	this.message = opts.message || '';
+	this.buttons = opts.buttons || ['OK'];
+	this.cancel = opts.cancel || 0;
+	this.autoshow = opts.show || true;
+	
+	var alertDialog = Titanium.UI.createAlertDialog({
+	    title: this.title,
+	    message: this.message,
+	    buttonNames: this.buttons,
+	    cancel: this.cancel
+	});
+	this.show = function(){
+		alertDialog.show();
+	};
+	this.hide = function(){
+		alertDialog.hide();
+	};
+	this.getObject = function(){ return alertDialog; };
+	if (this.autoshow) this.show();
+}
 t$.ui.busy = function() {};
 
 t$.ui.busy.prototype = {
