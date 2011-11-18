@@ -3,7 +3,7 @@
 * @class	This class is used as the base model class.
 */
 
-exports.baseModel = function(opts, args) {
+exports.BaseModel = function(opts, args) {
 	opts = opts || {};
 	this.args = args || null;
 	this.table = opts.table || 'myadb';
@@ -18,24 +18,15 @@ exports.baseModel = function(opts, args) {
 	if ( typeof this.init == "function" ) {
 		this.init();
 	}
-
 };
 
-exports.baseModel.prototype = {
-	/*
-	 * @alias	t$.app.dbcon
-	 * returns	t$.app.dbcon
-	 */
+exports.BaseModel.prototype = {
+
 	db: function() {
 		return t$.app.dbcon;
 	},
 	
-	/**
-	* Creates "if not exists" the database table for this model
-	*
-	* @return	{Void}
-	* @type		{function}
-	*/
+
 	create_table: function() {
 		var str = 'CREATE TABLE IF NOT EXISTS ' + this.table;
 		var flds = [];
@@ -46,14 +37,7 @@ exports.baseModel.prototype = {
 		this.query(str);
 	},
 	
-	/**
-	* Query a database
-	*
-	* @type		{function}
-	* @param	{String} query A valid SQL statement
-	* @param	{String, Array}	[params]
-	* @return	{Void}
-	*/
+
 	query: function(query, params) {
 		params = params || [];
 		Ti.API.debug('#################### TRYING QUERY: ' + query);
@@ -65,18 +49,11 @@ exports.baseModel.prototype = {
 		return new t$.DbResults(this.db().execute(query, params));
 	},
 	
-	/**
-	 * Find a record with a specified primarykey
-	 * 
-	 * @type	{function}
-	 * @param	{INT}	id	The primary id of the record (usualy the ID)
-	 * @return	{Object}	Dictionary object of rows and records.
-	 */
+
 	find: function(id){
 	    Ti.API.debug('#################### TRYING TO FIND SOMETHING...');
 	    try {
-	    	v = (t$.isString(id)) ? "\'?\'" : "?";
-	    	var rows = this.query_result('SELECT * from ' + this.table + ' WHERE ' + this.prikey + ' = ' + v + ';', id);
+	    	var rows = this.query_result('SELECT * from ' + this.table + ' WHERE ' + this.prikey + ' = ?', id);
 	    }
 	    catch(exception) {
 			Ti.API.error(exception);
@@ -96,7 +73,15 @@ exports.baseModel.prototype = {
 	    return rows;
 	},
 	
-	/*** Query Helpers ***/
+	insert: function(rows) {
+		var keys=[], vals=[], v=',?';
+		for(var i in rows) {
+			keys.push(i);
+			vals.push(rows[i] || '');
+		}
+		this.query("INSERT INTO " + this.table + " (" + keys.join(',') + ") VALUES (?" + v.repeat(vals.length - 1) + ")", vals);
+		return this.lastInsertId();
+	},
 	countAll: function() {
 		var result = this.query("SELECT COUNT(*) FROM " + this.table);
 		if (result === null) return 0;

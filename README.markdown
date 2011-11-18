@@ -1,5 +1,5 @@
 ### Welcome to the **TiMVC Framework**
-(alpha/experimental/proof-of-concept)
+(alpha stages)
 
 As of right now TiMVC Framework is a proof-of-concept codebase, constantly evolving and expanding towards a full-blown MVC framework.
 

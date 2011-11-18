@@ -1,7 +1,6 @@
 /*
- * Core Framework Namespace
- */
-
+* Core Framework Namespace
+*/
 
 //(function(sel, context){}) ();
 
@@ -9,27 +8,56 @@
  * @namespace Holds Core functionality related to running the framework.
  */
 
+String.prototype.repeat = function(count) {
+	if(count < 1)
+		return '';
+	var result = '', pattern = this.valueOf();
+	while(count > 0) {
+		if(count & 1)
+			result += pattern;
+		count >>= 1, pattern += pattern;
+	};
+	return result;
+};
 var t$ = {
-	dpi: Ti.Platform.displayCaps.dpi,
-	density: Ti.Platform.displayCaps.density,
-	locale: Ti.Platform.locale,
-	osname: Ti.Platform.osname,
-	isAndroid: (Ti.Platform.osname == 'android') ? true : false,
-	isIphone: (Ti.Platform.osname == 'iphone') ? true : false,
-	dp: function (densityPixels) {
+	screenW : function() {
+		return Ti.Platform.displayCaps.platformWidth
+	},
+	screenH : Ti.Platform.displayCaps.platformHeight,
+	dpi : Ti.Platform.displayCaps.dpi,
+	density : Ti.Platform.displayCaps.density,
+	locale : Ti.Platform.locale,
+	osname : Ti.Platform.osname,
+	isAndroid : (Ti.Platform.osname == 'android') ? true : false,
+	isIphone : (Ti.Platform.osname == 'iphone') ? true : false,
+	dp : function(densityPixels) {
 		return (densityPixels * Ti.Platform.displayCaps.dpi) / 160;
 	},
-	app: {
-		loaded:[],
-		dbcon:false
+	app : {
+		windows:[],
+		loaded : [],
+		dbcon : false
 	},
-	m: {},
-	v: {},
-	c: {},
-	ui: {},
+	nav:{},
+	m : {},
+	v : {},
+	c : {},
+	ui : {
+		events : ['beforeload', 'blur', 'change', 'click', 'close', 'complete', 'dblclick', 'delete', 'doubletap', 'error', 'focus', 'load', 'move', 'open', 'return', 'scroll', 'scrollEnd', 'selected', 'singletap', 'swipe', 'touchcancel', 'touchend', 'touchmove', 'touchstart', 'twofingertap'],
+		types : ['2DMatrix', '3DMatrix', 'ActivityIndicator', 'AlertDialog', 'Animation', 'Button', 'ButtonBar', 'CoverFlowView', 'DashboardItem', 'DashboardView', 'EmailDialog', 'ImageView', 'Label', 'OptionDialog', 'Picker', 'PickerColumn', 'PickerRow', 'ProgressBar', 'ScrollView', 'ScrollableView', 'SearchBar', 'Slider', 'Switch', 'Tab', 'TabGroup', 'TabbedBar', 'TableView', 'TableViewRow', 'TableViewSection', 'TextArea', 'TextField', 'Toolbar', 'View', 'WebView', 'Window']
+	}
 };
+var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
 
+// Create quick reference variables for speed access to core prototypes.
+t$.slice = ArrayProto.slice;
+t$.unshift = ArrayProto.unshift;
+t$.toString = ObjProto.toString;
+t$.hasOwnProperty = ObjProto.hasOwnProperty;
 
+// All **ECMAScript 5** native function implementations that we hope to use
+// are declared here.
+var nativeForEach = ArrayProto.forEach, nativeMap = ArrayProto.map, nativeReduce = ArrayProto.reduce, nativeReduceRight = ArrayProto.reduceRight, nativeFilter = ArrayProto.filter, nativeEvery = ArrayProto.every, nativeSome = ArrayProto.some, nativeIndexOf = ArrayProto.indexOf, nativeLastIndexOf = ArrayProto.lastIndexOf, nativeIsArray = Array.isArray, nativeKeys = Object.keys, nativeBind = FuncProto.bind;
 /**
  * Runs thru a list of specified methods at statup
  *
@@ -39,41 +67,129 @@ var t$ = {
 t$.bootstrap = function() {
 	if(t$.app.dbcon === false) {
 		t$.db = new t$.DB();
+		// Boot Loader
+		var br = {};
+		/*for (var i in t$.boot.init) {
+		if (t$.isFunction(t$.boot.init[i].init)) {
+		br = t$.boot.init[i];
+		br.init.apply(this, br.args);
+		}
+		}*/
 		//t$.app.dbcon = t$.db.open();
 		//t$.app.dbcon.remove();
+		t$.listenForAction();
 		t$.app.dbcon = t$.db.install();
 		//t$.app.dbcon = t$.db.open();
 		t$.app.dbcon.execute('PRAGMA read_uncommitted=true');
-		
-		
 	}
+};
+t$.nav.open = function(oWin) {
+		//add the window to the stack of window objects
+		t$.app.windows.push(oWin);
+
+		//grab a copy of the current nav controller for use in the callback
+		oWin.addEventListener('close', function() {
+			t$.app.windows.pop();
+		});
+		oWin.navBarHidden = oWin.navBarHidden || false;
+
+		//This is the first window
+		if(t$.app.windows.length === 1) {
+			if(t$.isAndroid) {
+				oWin.exitOnClose = true;
+				oWin.open();
+			} else {
+				t$.app.navgroup = Ti.UI.iPhone.createNavigationGroup({
+					window : oWin
+				});
+				var containerWindow = Ti.UI.createWindow();
+				containerWindow.add(t$.app.navgroup);
+				containerWindow.open();
+			}
+		}
+		//All subsequent windows
+		else {
+			if(t$.isAndroid === 'android') {
+				oWin.open();
+			} else {
+				t$.app.navgroup.open(oWin);
+			}
+		}
+	};
+/**
+ * add Class to Autoload list
+ */
+t$.addBootRecord = function(func, args) {
+	t$.boot.init.push({
+		init : func,
+		args : args
+	});
+};
+/*
+ * Link / Listen 
+ * 
+ * @param	Object	Attach to
+ * @param	String	Event to listen for
+ * @param	String	Action string	controller/method/[args0/args1]
+ * @param	Object	JSON Serialized parameter object
+ */
+t$.addAction = function(obj, evt, a, p) {
+	obj.addEventListener(evt, function(e){
+		Ti.App.fireEvent('AppAction', {store:{source:e,action:a,params:p}});
+	});
+};
+
+t$.listenForAction = function() {
+	Ti.App.addEventListener('AppAction', function(e){
+		if (e.store)
+		{
+			var p = e.store;
+			
+			// Parse action
+			if (p.action) {
+				var a = p.action.split('/'),
+					c = a[0],
+					m = a[1].
+					params = {};
+				
+				if (p.params) {
+					params = p.params;
+				}
+				if ($ts.hasData(a[2])){
+					params.args = a.splice(0,2);					
+				}
+				t$.load.controller(c);
+				if (t$.c[controller]) {
+					t$.c[c][m](params);
+				}
+			} 
+		};
+	});
 };
 
 /*
  * Bind Events Listener to a Object
- * 
+ *
  * @function
  * @param	Object		obj			The object we are listening to
  * @param	String		event		The event to listen for
  * @param	Function	callback	Function to call when the event is trigered
  * @returns	Void
  */
-t$.bind = function(obj, event, callback) {
-	obj.addEventListener(event, callback);
+t$.bind = function(obj, e, callback) {
+	obj.addEventListener(e, callback);
 };
-
 /*
  * Trigger Event Listener
- * 
+ *
  * @function
  * @param	String	event	The event to listen for
  * @param	Object	data	Event object or Optional data payload for the event
  * @returns	Void
  */
-t$.trigger = function(event, data) {
-	return obj.fireEvent(event, data);
+t$.trigger = function(e, data) {
+	return obj.fireEvent(e, data);
 };
-
 /*
  * Maps a function to each element
  * @function
@@ -95,7 +211,6 @@ t$.map = function(obj, iterator, context) {
 t$.toString = function() {
 	return Object.prototype.toString();
 };
-
 /*
  * Check if the variable is empty
  * @function
@@ -106,22 +221,30 @@ t$.toString = function() {
 t$.isEmpty = function(obj) {
 	if(this.isArray(obj) || this.isString(obj))
 		return obj.length === 0;
-	for(var key in obj)
-	if(this.contains(obj, key))
-		return false;
+	for(var key in obj) {
+		if(this.contains(obj, key)) {
+			return false;
+		}
+	}
 	return true;
 };
 
 t$.hasData = function(o) {
-	if (o == false || typeof o === "undefined" || o.length < 1) return false;
-	return true;
+	if(o === null || o == false || typeof o === "undefined" || o.length === 0)
+		return false;
+	else
+		return true;
 };
 /*
  * Is value an array?
  * @function
  */
 t$.isArray = function(obj) {
-	return this.toString.call(obj) == '[object Array]';
+	if(!Array.isArray) {
+		return Object.prototype.toString.call(obj) == '[object Array]';
+	} else {
+		return Array.isArray(obj);
+	}
 };
 /*
  * Is variable an object?
@@ -160,13 +283,6 @@ t$.isNumber = function(n) {
 	//return this.toString.call(obj) == '[object Number]';
 };
 /*
- * Is the given value `NaN`?
- * @function
- */
-t$.isNaN = function(obj) {
-	return obj !== obj;
-};
-/*
  * Is value a boolean?
  * @function
  */
@@ -194,7 +310,6 @@ t$.isRegExp = function(obj) {
 t$.isNull = function(obj) {
 	return obj === null;
 };
-
 /*
  * Is variable undefined?
  * @function
@@ -203,25 +318,28 @@ t$.isUndefined = function(obj) {
 	return obj ===
 	void 0;
 };
-
 /*
- * Check if object has a key
+ * Check if object has a specified key
  *
  * @function
  * @params	Object	obj	Object to check
  * @param	String	key	Property to check for
- * @returns	Bool 
+ * @returns	Bool
  */
 t$.contains = function(obj, key) {
 	return Object.prototype.hasOwnProperty.call(obj, key) && Object.prototype.propertyIsEnumerable.call(obj, key);
 };
 
+t$.inArray = function(needle, haystack) {
+	return (haystack.indexOf(needle) != -1);
+};
 /*
  * Iterate through object
  * @function
  */
-t$.forEach = function(obj, funk, context) {
-	if(obj == null) return;
+t$.forEach = t$.each = function(obj, funk, context) {
+	if(obj == null)
+		return;
 	if(Array.prototype.forEach && obj.forEach === Array.prototype.forEach) {
 		obj.forEach(funk, context);
 	} else if(obj.length === +obj.length) {
@@ -239,6 +357,127 @@ t$.forEach = function(obj, funk, context) {
 	}
 };
 
+t$.longPress = function(obj, holdTime, func) {
+	var args = t$.slice.call(arguments, 3);
+	var timeout;
+	holdTime = holdTime || 2000
+
+	obj.addEventListener("touchstart", function(e) {
+		timeout = setTimeout(function(e) {
+			// you function here. e.source is you tableViewRow.
+			func.apply(func, args);
+		}, holdTime);
+	});
+
+	obj.addEventListener("touchend", function(e) {
+		clearTimeout(timeout);
+	});
+};
+
+t$.intDiff = function (a,b){
+	return Math.max(a,b) - Math.min(a,b);
+};
+/*
+ * Date and Time methods
+ */
+
+t$.timestamp = function() {
+	return Date.now();
+};
+// Delays a function for the given number of milliseconds, and then calls
+// it with the arguments supplied.
+t$.delay = function(func, wait) {
+	var args = t$.slice.call(arguments, 2);
+	return setTimeout(function() {
+		return func.apply(func, args);
+	}, wait);
+};
+// Defers a function, scheduling it to run after the current call stack has
+// cleared.
+t$.defer = function(func) {
+	return t$.delay.apply(t$, [func, 1].concat(t$.slice.call(arguments, 1)));
+};
+// limit a function to only firing once every XX ms
+t$.throttle_ = function(fn, delay, trail) {
+	delay || ( delay = 100);
+	var last = 0, timeout, args, context, offset = (trail === false) ? 0 : delay;
+	return function() {
+		// we subtract the delay to prevent double executions
+		var now = +new Date, elapsed = (now - last - offset); args = arguments, context = this;
+
+		function exec() {
+			// remove any existing delayed execution
+			timeout && ( timeout = clearTimeout(timeout));
+			fn.apply(context, args);
+			last = now;
+		}
+
+		// execute the function now
+		if(elapsed > delay)
+			exec();
+		// add delayed execution (this could execute a few ms later than the delay)
+		//else if( !timeout && trail !== false ) timeout = setTimeout(exec, delay);
+	};
+};
+// Returns a function, that, when invoked, will only be triggered at most once
+// during a given window of time.
+t$.throttle = function(func, wait) {
+	var context, args, timeout, throttling, more;
+	var whenDone = t$.debounce(function() {
+		more = throttling = false;
+	}, wait);
+	return function() {
+		context = this;
+		args = arguments;
+		var later = function() {
+			timeout = null;
+			if(more)
+				func.apply(context, args);
+			whenDone();
+		};
+		if(!timeout)
+			timeout = setTimeout(later, wait);
+		if(throttling) {
+			more = true;
+		} else {
+			func.apply(context, args);
+		}
+		whenDone();
+		throttling = true;
+	};
+};
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds.
+t$.debounce = function(func, wait) {
+	var timeout;
+	return function() {
+		var context = this, args = arguments;
+		var later = function() {
+			timeout = null;
+			func.apply(context, args);
+		};
+		if(timeout)
+			clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+	};
+};
+
+t$.debounce_ = function(wait, cb) {
+	var timeOut = null, args = [], callback = function() {
+		timeOut = null;
+		cb(args);
+		args = [];
+	};
+	return function() {
+		if(timeOut) {
+			clearTimeout(timeOut);
+		}
+
+		args.push(arguments);
+		timeOut = setTimeout(callback, wait);
+	};
+};
 /*
  * Trim spaces from a string on the left and right.
  * @function
@@ -298,7 +537,6 @@ t$.trim = function(str) {
 t$.jsonParse = function(json) {
 	return JSON.parse(json);
 };
-
 // Fill in a given object with default properties.
 t$.defaults = function(obj) {
 	this.forEach(Array.prototype.slice.call(arguments, 1), function(source) {
@@ -309,39 +547,26 @@ t$.defaults = function(obj) {
 	});
 	return obj;
 };
-
-t$.setOpts = function(options, defaults) {
+// Extend a given object with all the properties in passed-in object(s).
+t$.extend = function(obj) {
+	t$.forEach(Array.prototype.slice.call(arguments, 1), function(source) {
+		for(var prop in source) {
+			if(source[prop] !==
+				void 0)
+				obj[prop] = source[prop];
+		}
+	});
+	return obj;
+};
+t$.mergeOptions = function(options, defaults) {
 
 	if(!this.opts) {
 		this.opts = {};
 	}
 
-	this.opts = this.defaults(defaults, this.opts);
+	this.opts = this.defaults(this.opts, defaults);
 
 };
-
-t$.toQueryStr = function(obj) {
-	var a = [], that = this;
-	obj = obj || {};
-
-	this.forEach(obj, function(val, key) {
-		var result = null;
-
-		if(t$.isObject(val)) {
-			result = that.toQueryStr(val);
-		} else if(t$.isArray(val)) {
-			result = that.toQueryStr(val);
-		} else {
-			result = encodeURIComponent(val);
-		}
-		if(result) {
-			a.push(key + '=' + result);
-		}
-	});
-	return '[' + a.join("&") + ']';
-};
-
-
 /**
  * @namespace Holds space for the library loader methods
  */
@@ -349,101 +574,127 @@ t$.load = {};
 
 /*
  * Checks if file is already loaded
- * 
+ *
  * @params	{String}	Fullpath to the file
  * @returns	{Bool}
  */
 t$.load.isLoaded = function(f) {
 	return (t$.app.loaded.indexOf(f) === -1) ? false : true;
 };
-
 /*
- * Core Loader function, loads a library into the specified namespace
- * (Defaults to global if namespace is not specified)
- * 
+ * Core Loader function, loads a library module into the specified namespace
+ * (Defaults to global namespace)
+ *
  * @param	{String}	Filename (without .js extention)
  * @param	{String}	Filepath
- * @param	{Object}	Namespace to add the library to
+ * @param	{Object}	modules parent namespace (default: global)
  * @returns	{Void}
  */
 t$.load.require = function(f, path, namespace) {
 	namespace = namespace || t$.global;
 	var k = (t$.isUndefined(path) || path === '') ? f : path.replace('/', '_') + f;
-	if(!this.isLoaded(k)) {
+	if(!t$.load.isLoaded(k)) {
 		t$.app.loaded.push(k);
+		Ti.API.debug('#### Loading: ' + namespace + '.' + k);
 		namespace[f] = require(path + f)[f];
 	} else {
 		Ti.API.debug('Already Loaded: ' + k);
 	}
 };
-
 /*
  * Load Core Library file
- * 
+ *
  * @param	{String}	Filename
  * @param	{Object}	Namespace (Defaults to global)
  * @returns	{Void}
  */
 t$.load.lib = function(f, n) {
-	this.require(f, 'lib/', n);
+	t$.load.require(f, 'lib/', n);
 };
-
 /*
  * Load Model
- * 
+ *
  * @param	{String}	Filename
  * @param	{Object}	Namespace (Defaults to t$.m)
  * @returns	{Void}
  */
 t$.load.model = function(f, n) {
 	n = n || t$.m;
-	this.require(f, 'lib/models/', n);
+	t$.load.require(f, 'lib/models/', n);
 };
-
 /*
  * Load View
- * 
+ *
  * @param	{String}	Filename
  * @param	{Object}	Namespace (Defaults to t$.v)
  * @returns	{Void}
  */
 t$.load.view = function(f, n) {
 	n = n || t$.v;
-	this.require(f, 'lib/views/', n);
+	t$.load.require(f, 'lib/views/', n);
 };
-
 /*
  * Load Controller
- * 
+ *
  * @param	{String}	Filename
  * @param	{Object}	Namespace (Defaults to t$.c)
  * @returns	{Void}
  */
 t$.load.controller = function(f, n) {
 	n = n || t$.c;
-	this.require(f, 'lib/controllers/', n);
+	t$.load.require(f, 'lib/controllers/', n);
 };
+/*
+ * Dispatch the Controller -> Action
+ *
+ * @param	String	controller name (defaults to home)
+ * @param	String	method name (defaults to home)
+ * @param	[String|Array|Object]	arguments
+ * @returns	Void
+ */
 t$.load.Dispatch = function(controller, action, params) {
 
+	// load Controller
 	t$.load.controller(controller);
-	// Get Possible Controller
+
+	// get Controller object
 	var _c = t$.c[controller];
-	if (_c.hasAction(action)) {
+
+	// Controller has method/action
+	if(_c.hasAction(action)) {
+
+		// call controller.action(params)
 		t$.c[controller][action](params);
 	} else {
+		// Action not found
 		var alrt = t$.alertDialog({
-			title:'Action Not Found',
-			message:'Action "' + action + '" not found in [' + controller + ']',
+			title : 'Action Not Found',
+			message : 'Action "' + action + '" not found in [' + controller + ']',
 		});
 	}
 };
 /*
  * Load Helpers
- * 
+ *
  * @param	{String}	Filename
  * @param	{Object}	Namespace (Defaults to global)
  * @returns	{Void}
  */
 t$.load.helpers = function(f, n) {
-	return this.require(f, 'lib/helpers/', n);
+	return t$.load.require(f, 'lib/helpers/', n);
 };
+
+t$.theme = {
+	Label : {
+		textAlign : 'left',
+		left : 15,
+		font : {
+			fontWeight : 'bold',
+			fontSize : 16,
+			fontFamily : 'Helvetica Neue'
+		},
+	},
+	TextField : {
+		backgroundColor : '#333'
+	}
+}

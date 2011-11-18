@@ -1,9 +1,6 @@
 exports.home = new t$.BaseView({
 	
 	view: function(data) {
-		data = data || {};
-		t$.load.helpers('http', t$);
-		
 		Titanium.UI.setBackgroundColor('#000');
 		
 		var tabGroup = Titanium.UI.createTabGroup();
@@ -12,18 +9,30 @@ exports.home = new t$.BaseView({
 		// create base UI tab and root window
 		//
 		var win1 = Titanium.UI.createWindow({ title:'Tab 1', backgroundColor:'#fff',layout:'vertical' });
-		win1.add(t$.button({title:'Add'}, function(){alert('clicked ADD');}));
-		
 		var tab1 = Titanium.UI.createTab({ icon:'KS_nav_views.png', title:'Tab 1', window:win1 });
 
-		t$.load.require('tableScrollableView', 'lib/helpers/', t$.ui);
-		t$.load.require('tableScrollable', 'lib/helpers/', t$.ui);
 		var tblView = new t$.ui.tableScrollableView();
 		
 		// Table objects ()
-		var tbl = new t$.ui.tableScrollable({table: {rows: t$.m.notes.getTitles()}});
-
+		var tbl = new t$.ui.tableScrollable();
+		var tbl2 = new t$.ui.tableScrollable();
+		
+		for (var i=0; i<5; i++){
+			tbl.addRow({id : i,cat : 'News' + i,title : 'Test Title 0' + i,cost : 3 * i});
+		}
+		for (var i=0; i<5; i++){
+			tbl2.addRow({id : i,cat : 'News' + i,title : 'Test Title 0' + i,cost : 2 * i});
+		}
+		tbl2.addRow({
+			id : 11,
+			cat : 'Test Cat',
+			title : 'Title Stuff',
+			cost : 21
+		});
+		
+		//tbl.tr({id:5, cat: 'News', title: 'Test Title 01', cost: 50 });
 		tbl.addTo(tblView);
+		tbl2.addTo(tblView);
 		win1.add(tblView.build());
 		
 		var label1 = Titanium.UI.createLabel({
@@ -31,7 +40,6 @@ exports.home = new t$.BaseView({
 			font:{fontSize:20,fontFamily:'Helvetica Neue'},textAlign:'center',width:'auto'
 		});
 		win1.add(label1);
-		
 		
 		//
 		// create controls tab and root window
@@ -43,7 +51,7 @@ exports.home = new t$.BaseView({
 			font:{fontSize:20,fontFamily:'Helvetica Neue'},textAlign:'center',width:'auto'
 		});
 		win2.add(label2);
-		var rows = data.cats;
+		var rows = data;
 		// Loop through each row
 		for (var i in rows) {
 			for (var ii in rows[i]) {
@@ -57,12 +65,10 @@ exports.home = new t$.BaseView({
 			}
 		}
 
+
+
 		tabGroup.addTab(tab1);  
 		tabGroup.addTab(tab2);
 		tabGroup.open();
-		
-		for(var i in t$.m.category_m){
-			Ti.API.debug('#################### MODEL: ' + i);
-		}
 	},
 });

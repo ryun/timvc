@@ -2,8 +2,9 @@ exports.tableScrollableView = function(cfg) {
 	this.tables = [];
 	
 	cfg = cfg || {};
-	this.height = cfg.height || '200dp';
+	this.height = cfg.height || '400dp';
 	var _main = Ti.UI.createView({
+		title: cfg.title || 'Table View',
 		layout : 'vertical',
 		height: 'auto'
 	});

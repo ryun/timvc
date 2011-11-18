@@ -55,7 +55,9 @@ t$.DbResults = function(result) {
 	this.rowcount = result.rowCount;
 	this.validrow = result.validRow;
 };
-
+/*
+ * Database Result Set
+ */
 t$.DbResults.prototype = {
 	fieldCount: function(){
 		return this.result.fieldCount();
@@ -116,3 +118,9 @@ t$.DbResults.prototype = {
     	return result;
 	}
 };
+
+
+/*
+ * Activerecord Style Query Builder
+ */
+

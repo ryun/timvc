@@ -1,4 +1,4 @@
-exports.Cache = new t$.baseModel({
+exports.Cache = new t$.BaseModel({
 	table: 'tbl_app_cache',
 	prikey: 'key',
 	columns: {
@@ -12,7 +12,7 @@ exports.Cache = new t$.baseModel({
 			this.expire_default = this.expire_default || 300;
 
 			// Expire Option [ intervals | get ]
-			this.expire_on = this.expire_on || 'intervals';
+			this.expire_on = this.expire_on || 'get';
 			this.init_cache();
 		},
 		

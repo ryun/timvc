@@ -1,9 +1,12 @@
 exports.tableScrollable = function(cfg) {
 	var self = this;
-	this._rows = [];
+	cfg = cfg || {};
+	this.table = cfg.table || {};
+	this.table.header = this.table.header || [];
+	this.table.rows = this.table.rows || [];
 	this._current_row = false;
-	if(cfg == undefined)
-		cfg = {};
+	
+
 	
 	// CONTAINER BG COLOR
 	cfg.bgColor = cfg.bgColor || '#000';
@@ -35,12 +38,6 @@ exports.tableScrollable = function(cfg) {
 	cfg.HC_font = cfg.HC_font || {
 		fontWeight : 'bold'
 	};
-
-	this.table = (cfg.data) ? cfg.data : {};
-	//backgroundColor: _clr
-	this.table.header = this.table.header || [];
-	this.table.rows = this.table.rows || [];
-	this.table.fields = this.table.fields || [];
 
 	function _header(data) {
 		var v = Ti.UI.createView({
@@ -109,9 +106,10 @@ exports.tableScrollable = function(cfg) {
 		this._view.add(this.current_row);
 
 		/************ BODY ****************/
+		Ti.API.debug('########################### STARt BODY ############################');
 		for(var i in this.table.rows) {
 			_tmp_top = (tbl_row_count > 0) ? (tbl_row_count * cfg.C_height) + cfg.yPad + cfg.HC_height + cfg.yPad : cfg.HC_height + cfg.yPad;
-			Ti.API.info('**** TOP ******************* : ' + _tmp_top);
+			Ti.API.debug('########################## TOP ############################# : ' + _tmp_top);
 			this.current_row = Ti.UI.createView({
 				layout : "horizontal",
 				focusable : false,
