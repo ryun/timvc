@@ -6,9 +6,12 @@ exports.add_notes = new t$.BaseView({
 		//t$.load.model('notes_m');
 		
 		t$.load.lib('FormBuilder', t$);
+		t$.load.mod('StripView', t$.ui);
+		t$.load.mod('tableScrollableView', t$.ui);
+		t$.load.mod('tableScrollable', t$.ui);
 		
 		var frm = new t$.FormBuilder('add_notes', {layout:'vertical',title:'Form View',backgroundColor: '#eee'});
-		
+
 
 		frm.create('Label', 'ltitle', {	text : 'Title'	});
 
@@ -71,9 +74,7 @@ exports.add_notes = new t$.BaseView({
 			backgroundColor : '#fff'
 		});
 		
-		t$.load.mod('StripView', t$.ui);
-		t$.load.mod('tableScrollableView', t$.ui);
-		t$.load.mod('tableScrollable', t$.ui);
+
 		var tblView = new t$.ui.tableScrollableView({title:'Notes View'});
 		
 		// Table objects ()
