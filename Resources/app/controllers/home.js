@@ -10,7 +10,7 @@ exports.home = new t$.BaseController({
 			t$.load.model('category_m');
 			t$.load.model('notes_m');
 			
-			t$.load.model('Cache');
+			t$.load.lib('Cache');
 			//t$.m.Cache.clear_cache();
 			var data = {};
 			
@@ -22,10 +22,10 @@ exports.home = new t$.BaseController({
 			
 			else data.cats = [{id:1,name:'cat1'}];
 					
-			t$.m.Cache.put('who', {hello:'CoolBeans'});
-			t$.m.Cache.put('who', {hello:'Cool for school'});
+			t$.Cache.put('who', {hello:'CoolBeans'});
+			t$.Cache.put('who', {hello:'Cool for school'});
 			
-			var tCache = t$.m.Cache.get('who');
+			var tCache = t$.Cache.get('who');
 			if (tCache.hello) alert(tCache.hello);
 			//t$.app.dbcon.close();
 			t$.load.view('add_notes');

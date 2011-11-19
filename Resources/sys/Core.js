@@ -2,8 +2,6 @@
 * Core Framework Namespace
 */
 
-//(function(sel, context){}) ();
-
 /**
  * @namespace Holds Core functionality related to running the framework.
  */
@@ -571,6 +569,7 @@ t$.mergeOptions = function(options, defaults) {
  * @namespace Holds space for the library loader methods
  */
 t$.load = {};
+t$.inc = {};
 
 /*
  * Checks if file is already loaded
@@ -608,8 +607,18 @@ t$.load.require = function(f, path, namespace) {
  * @param	{Object}	Namespace (Defaults to global)
  * @returns	{Void}
  */
+t$.load.core = function(f, n) {
+	n = n || t$;
+	t$.load.require(f, t$.cfg.sys_path + 'core/', n);
+};
+
 t$.load.lib = function(f, n) {
-	t$.load.require(f, 'lib/', n);
+	n = n || t$;
+	t$.load.require(f, t$.cfg.sys_path + 'libs/', n);
+};
+t$.load.mod = function(f, n) {
+	n = n || t$;
+	t$.load.require(f, t$.cfg.sys_path + 'mods/', n);
 };
 /*
  * Load Model
@@ -620,7 +629,7 @@ t$.load.lib = function(f, n) {
  */
 t$.load.model = function(f, n) {
 	n = n || t$.m;
-	t$.load.require(f, 'lib/models/', n);
+	t$.load.require(f, t$.cfg.app_path + 'models/', n);
 };
 /*
  * Load View
@@ -631,7 +640,7 @@ t$.load.model = function(f, n) {
  */
 t$.load.view = function(f, n) {
 	n = n || t$.v;
-	t$.load.require(f, 'lib/views/', n);
+	t$.load.require(f, t$.cfg.app_path + 'views/', n);
 };
 /*
  * Load Controller
@@ -642,8 +651,10 @@ t$.load.view = function(f, n) {
  */
 t$.load.controller = function(f, n) {
 	n = n || t$.c;
-	t$.load.require(f, 'lib/controllers/', n);
+	t$.load.require(f, t$.cfg.app_path + 'controllers/', n);
 };
+
+
 /*
  * Dispatch the Controller -> Action
  *
@@ -681,13 +692,18 @@ t$.load.Dispatch = function(controller, action, params) {
  * @returns	{Void}
  */
 t$.load.helpers = function(f, n) {
-	return t$.load.require(f, 'lib/helpers/', n);
+	t$.load.require(f, t$.cfg.sys_path + 'helpers/', n);
+};
+t$.inc.helpers = function(f) {
+	Ti.include(t$.cfg.sys_path + 'helpers/' + f + '.js');
 };
 
 t$.theme = {
+	Window:{ backgroundColor: '#eee'},
 	Label : {
 		textAlign : 'left',
-		left : 15,
+		left : 10,
+		top: 10,
 		font : {
 			fontWeight : 'bold',
 			fontSize : 16,
@@ -695,6 +711,26 @@ t$.theme = {
 		},
 	},
 	TextField : {
-		backgroundColor : '#333'
+		top:10,
+		backgroundColor : '#F7F7F7'
+	},
+	TextArea : {
+		top:10,
+		backgroundColor : '#F7F7F7'
+	},
+	'.frm-fld':{
+		left:10,
+		top:10,
+	},
+	'#note': {
+		color : '#111',
+		value : '',
+		height : 100,
+		width : '98%',
+		top : 10,
 	}
 }
+
+
+// Make sure this variables stays here!!
+t$.global = this;

@@ -1,17 +1,16 @@
-Ti.include('lib/Core.js');
 
-Ti.include('lib/helpers/ui.js');
+Ti.include('app/AppCfg.js');
 
+t$.inc.helpers('ui');
 // Add alias of global namespace
-t$.global = this;
 
-Ti.include('lib/db.js');
 
-t$.load.lib('BaseController', t$);
-t$.load.lib('BaseModel', t$);
-//Ti.include('lib/BaseModel.js');
+t$.load.core('DB');
+t$.load.core('DbResults');
 
-Ti.include('lib/BaseView.js');
+t$.load.core('BaseController', t$);
+t$.load.core('BaseModel', t$);
+t$.load.core('BaseView', t$);
 
 t$.bootstrap();
 

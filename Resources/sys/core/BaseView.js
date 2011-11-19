@@ -1,4 +1,4 @@
-t$.BaseView = function(opts) {
+exports.BaseView = function(opts) {
 	opts = opts || {};
 	this.view = opts.view || null;
 	this.data = opts.data || {};  
@@ -6,7 +6,7 @@ t$.BaseView = function(opts) {
 	t$.forEach(this.objMethods, function(method, name) {this[name] = method;}, this);
 };
 
-t$.BaseView.prototype = {
+exports.BaseView.prototype = {
 	set: function(key, val){
 		this.data[key] = val; 
 	},
@@ -19,5 +19,7 @@ t$.BaseView.prototype = {
 		}
 	},
 	load: function(){},
-	load_partial: function(){}
+	load_partial: function(){
+		// Load or Require?
+	}
 };

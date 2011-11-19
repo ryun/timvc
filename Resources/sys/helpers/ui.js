@@ -1,3 +1,30 @@
+t$.ui.create = function(type, id, o) {
+	o = o || {};
+	//Check for element styles
+	if(t$.theme[type]) {
+		t$.extend(o, t$.theme[type]);
+	}
+
+	// Check for class styles
+	if(o.className) {
+		var cl = o.className.split(' ');
+		for(var i in cl){
+			if(t$.hasData(t$.theme['.' + cl[i]])) {
+				t$.extend(o, t$.theme['.' + cl[i]]);
+			}
+		}
+	}
+	// Check for class styles
+	if(t$.hasData(t$.theme['#' + id])) {
+		t$.extend(o, t$.theme['#' + id]);
+	}
+	if(type == 'Picker') {
+		var obj = t$.ui.picker(o, o.data || []);
+	} else {
+		obj = Ti.UI['create' + type](o);
+	}
+	return obj;
+};
 t$.ui.truncate = function(txt, maxlen, suffix) {
 	maxlen = maxlen || 35;
 	suffix = suffix || '...';
@@ -16,26 +43,26 @@ t$.ui.addToView = function(view, element) {
 	}
 };
 t$.ui.addForm = function(form) {
-	if (t$.isObject(form)) {
+	if(t$.isObject(form)) {
 		for(var fld in form) {
-			
+
 			// Add Label
-			if (form[fld].label){
+			if(form[fld].label) {
 				view.add(form[fld].label);
 			}
 			// Add Field
-			if (form[fld].field){
-				if (form[fld].db){}
+			if(form[fld].field) {
+				if(form[fld].db) {
+				}
 				view.add(form[fld].field);
 			}
-			
-			
+
 			view.add(element[i]);
 		}
 	}
 };
-t$.ui.isInput = function(type){
-	return (/^Picker|ScrollView|SearchBar|Slider|Switch|TextArea|TextField$/.test(type));	
+t$.ui.isInput = function(type) {
+	return (/^Picker|ScrollView|SearchBar|Slider|Switch|TextArea|TextField$/.test(type));
 };
 
 t$.ui.view = function(args) {
