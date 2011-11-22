@@ -11,7 +11,8 @@ exports.home = new t$.BaseController({
 			t$.load.model('notes_m');
 			
 			t$.load.lib('Cache');
-			//t$.m.Cache.clear_cache();
+			
+			// Generic object for collecting data to pass on to the view 
 			var data = {};
 			
 			data.titles = t$.m.notes_m.getTitles();
@@ -30,7 +31,22 @@ exports.home = new t$.BaseController({
 			//t$.app.dbcon.close();
 			t$.load.view('add_notes');
 			t$.v.add_notes.render(data);
-			alert('ID: ' + id);
-		}
+
+		},
+		add_note: function(frm) {
+			frm._validateForm();
+			//form is no Valid
+			if (frm.errors.length){
+				for(var i in frm.errors){
+					Ti.API.debug('### Form ERRORS:' + frm.errors[i]);
+				}
+			} else {
+				var ok = t$.m.notes_m.insert(frm.getData());
+				if(ok) {
+					alert('Note Saved');
+					data.titles = t$.m.notes_m.getTitles();
+				}
+			}
+		},
 	}
 });

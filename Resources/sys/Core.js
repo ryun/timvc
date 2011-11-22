@@ -75,7 +75,7 @@ t$.bootstrap = function() {
 		}*/
 		//t$.app.dbcon = t$.db.open();
 		//t$.app.dbcon.remove();
-		t$.listenForAction();
+		t$.listenForActions();
 		t$.app.dbcon = t$.db.install();
 		//t$.app.dbcon = t$.db.open();
 		t$.app.dbcon.execute('PRAGMA read_uncommitted=true');
@@ -137,28 +137,39 @@ t$.addAction = function(obj, evt, a, p) {
 	});
 };
 
-t$.listenForAction = function() {
+t$.listenForActions = function() {
 	Ti.App.addEventListener('AppAction', function(e){
 		if (e.store)
 		{
 			var p = e.store;
 			
-			// Parse action
-			if (p.action) {
-				var a = p.action.split('/'),
-					c = a[0],
-					m = a[1].
+			// Parse action?
+			
+			if (p.action)
+			{
+				var a = p.action.split('/');
+				var co = a[0],
+					me = a[1],
 					params = {};
 				
-				if (p.params) {
+				if (p.params)
+				{
 					params = p.params;
 				}
-				if ($ts.hasData(a[2])){
+				if (t$.hasData(a[2]))
+				{
 					params.args = a.splice(0,2);					
 				}
-				t$.load.controller(c);
-				if (t$.c[controller]) {
-					t$.c[c][m](params);
+
+				t$.load.controller(co);
+				
+				if (t$.c[co][me])
+				{
+					t$.c[co][me](params);
+				}
+				else {
+					Ti.API.debug('Controller: ' + co + ' Method: ' + JSON.stringify(me) + ' Params: ' + JSON.stringify(params));
+					// Error method not found
 				}
 			} 
 		};
@@ -263,7 +274,7 @@ t$.isArguments = function(obj) {
  * @function
  */
 t$.isFunction = function(obj) {
-	return this.toString.call(obj) == '[object Function]';
+	return typeof obj === 'function';
 };
 /*
  * Is value a string?

@@ -2,9 +2,7 @@ exports.FormBuilder = function(formid, o) {
 	this.elements = {};
 	this.opts = o || {};
 	this.fields = [];
-	this.callback = o.callback ||
-	function(e) {
-	};
+	this.callback = o.callback || function(e) {};
 
 
 	this.errors = [];
@@ -78,6 +76,9 @@ exports.FormBuilder.prototype = {
 			this.formView.add(this.elements[id]);
 			return this.elements[id];
 		}
+	},
+	getById: function(i){
+		return this.elements[i] || '';
 	},
 	getData : function() {
 		var data = {}, self = this;
@@ -337,10 +338,9 @@ exports.FormBuilder.prototype = {
 	},
 	Mask : {
 		mask : function(fld, func, oParams) {
-			if(oParams)
-				fld.value = func(fld.value, oParams);
-			else
-				fld.value = func(fld.value);
+			if(oParams)	fld.value = func(fld.value, oParams);
+			else fld.value = func(fld.value);
+			fld.focus();
 		},
 		generic : function(v, oParams) {
 			var _regex = oParams.regex;
