@@ -3,6 +3,8 @@
 
 TiMVC Framework is under heavy development, constantly evolving and expanding towards a full-blown MVC framework.
 
+## [Check out: Kwery UI Tool ** New **](https://github.com/ryun/timvc/wiki/Kwery)
+
 #### MAIN FEATURES
 
 * MVC Based System

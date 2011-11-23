@@ -103,9 +103,15 @@ kwery.fn = kwery.prototype = {
 		return this;
 	},
 	set : function(p, v) {
-		this.selector[p] = v;
+		if (kwery.fn.isObject(p)){
+			dbg('============= p is a object ===============');
+			kwery.fn.extend(this.selector, p);
+		} else {
+			this.selector[p] = v;
+		}
 		return this;
 	},
+	get: function(){ return this.selector; },
 	getParent : function() {
 		if( typeof this.selector.getParent === 'function') {
 			return this.selector.getParent();
@@ -125,7 +131,7 @@ kwery.fn = kwery.prototype = {
 			kwery.fn.extend(o, t$.theme[type]);
 		}
 
-		// Check for class styles
+		// Merge for class styles
 		if(o.className) {
 			var cl = o.className.split(' ');
 			for(var i in cl) {
@@ -134,7 +140,7 @@ kwery.fn = kwery.prototype = {
 				}
 			}
 		}
-		// Check for class styles
+		// Merge for ID styles
 		if(kwery.fn.hasData(t$.theme['#' + id])) {
 			kwery.fn.extend(o, t$.theme['#' + id]);
 		}
@@ -155,8 +161,10 @@ kwery.fn = kwery.prototype = {
 		var source = Array.prototype.slice.call(arguments, 1);
 		for(var i in source) {
 			for(var prop in source[i]) {
-				if(obj[prop] == null)
+				if(obj[prop] == null){
+					
 					obj[prop] = source[i][prop];
+				}
 			}
 		}
 		return obj;
@@ -166,9 +174,10 @@ kwery.fn = kwery.prototype = {
 		var source = Array.prototype.slice.call(arguments, 1);
 		for(var i in source) {
 			for(var prop in source[i]) {
-				if(source[prop] !==
-					void 0)
+				if(source[i][prop] !==	void 0){
+					dbg('obj:' + prop + ' - src: ' + i + ':' + prop);
 					obj[prop] = source[i][prop];
+				}
 			}
 		};
 		return obj;
@@ -178,6 +187,20 @@ kwery.fn = kwery.prototype = {
 			return false;
 		else
 			return true;
+	},
+	isArray: function(obj) {
+		if(!Array.isArray) {
+			return Object.prototype.toString.call(obj) == '[object Array]';
+		} else {
+			return Array.isArray(obj);
+		}
+	},
+	/*
+	 * Is variable an object?
+	 * @function
+	 */
+	isObject: function(obj) {
+		return obj === Object(obj);
 	},
 };
 root.kwery = root.$ = kwery;
